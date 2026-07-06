@@ -41,24 +41,29 @@ export default {
     if (!guild) return;
 
     try {
+      const overwrites: any[] = [
+        {
+          id: guild.id,
+          deny: ['ViewChannel'],
+        },
+        {
+          id: interaction.user.id,
+          allow: ['ViewChannel', 'SendMessages', 'AttachFiles', 'ReadMessageHistory'],
+        },
+      ];
+
+      if (config.roles.staff) {
+        overwrites.push({
+          id: config.roles.staff,
+          allow: ['ViewChannel', 'SendMessages', 'ReadMessageHistory'],
+        });
+      }
+
       const ticketChannel = await guild.channels.create({
         name: `ticket-${interaction.user.username}`,
         type: ChannelType.GuildText,
         parent: config.channels.ticketCategory || undefined,
-        permissionOverwrites: [
-          {
-            id: guild.id,
-            deny: ['ViewChannel'],
-          },
-          {
-            id: interaction.user.id,
-            allow: ['ViewChannel', 'SendMessages', 'AttachFiles', 'ReadMessageHistory'],
-          },
-          {
-            id: config.roles.staff, // Assuming a staff role is configured
-            allow: ['ViewChannel', 'SendMessages', 'ReadMessageHistory'],
-          },
-        ],
+        permissionOverwrites: overwrites,
       });
 
       // 3. Save Registration and Ticket to DB
