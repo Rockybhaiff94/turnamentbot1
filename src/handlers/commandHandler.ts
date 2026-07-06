@@ -26,6 +26,11 @@ export async function loadCommands(client: ExtendedClient) {
   // Register slash commands globally (or guild-specific for faster dev)
   const rest = new REST({ version: '10' }).setToken(config.bot.token);
 
+  if (!config.bot.clientId || !config.bot.guildId) {
+    logger.error('CRITICAL ERROR: CLIENT_ID or GUILD_ID is missing from your environment variables! Commands CANNOT be registered. Please add them in Railway.');
+    return;
+  }
+
   try {
     logger.info(`Started refreshing ${slashCommands.length} application (/) commands.`);
 
