@@ -12,8 +12,9 @@ async function bootstrap() {
     await mongoose.connect(config.database.uri);
     logger.info('Connected to MongoDB successfully.');
 
-    // Initialize Express server if needed
-    // ...
+    // Initialize Express server
+    const { setupExpress } = await import('./controllers/api');
+    setupExpress();
 
     // Load Handlers (Commands, Events, Components)
     logger.info('Loading handlers...');
@@ -24,6 +25,10 @@ async function bootstrap() {
     await loadCommands(client);
     loadEvents(client);
     loadComponents(client);
+    
+    // Load Cron Jobs
+    const { loadJobs } = await import('./jobs/matchReminder');
+    loadJobs(client);
 
     // Login to Discord
     logger.info('Logging into Discord...');
